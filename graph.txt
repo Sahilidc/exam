@@ -1,0 +1,116 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_USERS 100
+
+// Structure to represent a node in the adjacency list
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Structure to represent the graph
+struct Graph {
+    int numUsers;
+    struct Node* adjacencyList[MAX_USERS];
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Function to add an edge to the graph
+void addEdge(struct Graph* graph, int src, int dest) {
+    struct Node* newNode = createNode(dest);
+    newNode->next = graph->adjacencyList[src];
+    graph->adjacencyList[src] = newNode;
+
+    // For undirected graph, add an edge from dest to src as well
+    newNode = createNode(src);
+    newNode->next = graph->adjacencyList[dest];
+    graph->adjacencyList[dest] = newNode;
+}
+
+// Function to perform Depth-First Search traversal
+void DFS(struct Graph* graph, int startNode, int visited[]) {
+    visited[startNode] = 1;
+    printf("%d ", startNode);
+
+    struct Node* temp = graph->adjacencyList[startNode];
+    while (temp != NULL) {
+        int adjNode = temp->data;
+        if (!visited[adjNode]) {
+            DFS(graph, adjNode, visited);
+        }
+        temp = temp->next;
+    }
+}
+
+// Function to perform Breadth-First Search traversal
+void BFS(struct Graph* graph, int startNode, int visited[]) {
+    int queue[MAX_USERS];
+    int front = 0, rear = 0;
+
+    visited[startNode] = 1;
+    queue[rear++] = startNode;
+
+    while (front < rear) {
+        int currentNode = queue[front++];
+        printf("%d ", currentNode);
+
+        struct Node* temp = graph->adjacencyList[currentNode];
+        while (temp != NULL) {
+            int adjNode = temp->data;
+            if (!visited[adjNode]) {
+                visited[adjNode] = 1;
+                queue[rear++] = adjNode;
+            }
+            temp = temp->next;
+        }
+    }
+}
+
+int main() {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->numUsers = 0;
+
+    printf("Enter the number of users: ");
+    scanf("%d", &graph->numUsers);
+
+    int i, j;
+    for (i = 0; i < MAX_USERS; ++i) {
+        graph->adjacencyList[i] = NULL;
+    }
+
+    printf("Enter the friend connections (user1 user2), -1 to end:\n");
+    while (1) {
+        int user1, user2;
+        scanf("%d", &user1);
+        if (user1 == -1) break;
+        scanf("%d", &user2);
+        addEdge(graph, user1, user2);
+    }
+
+    printf("Enter the starting node for traversal: ");
+    int startNode;
+    scanf("%d", &startNode);
+
+    int visited[MAX_USERS] = {0};
+
+    printf("\nDFS traversal starting from node %d: ", startNode);
+    DFS(graph, startNode, visited);
+    printf("\n");
+
+    for (i = 0; i < MAX_USERS; ++i) {
+        visited[i] = 0;
+    }
+
+    printf("\nBFS traversal starting from node %d: ", startNode);
+    BFS(graph, startNode, visited);
+    printf("\n");
+
+    return 0;
+}

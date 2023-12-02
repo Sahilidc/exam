@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Max heap structure
+struct MaxHeap {
+    int *arr;
+    int size;
+    int capacity;
+};
+
+// Min heap structure
+struct MinHeap {
+    int *arr;
+    int size;
+    int capacity;
+};
+
+// Function to initialize max heap
+struct MaxHeap* createMaxHeap(int capacity) {
+    struct MaxHeap* maxHeap = (struct MaxHeap*)malloc(sizeof(struct MaxHeap));
+    maxHeap->capacity = capacity;
+    maxHeap->size = 0;
+    maxHeap->arr = (int*)malloc(capacity * sizeof(int));
+    return maxHeap;
+}
+
+// Function to initialize min heap
+struct MinHeap* createMinHeap(int capacity) {
+    struct MinHeap* minHeap = (struct MinHeap*)malloc(sizeof(struct MinHeap));
+    minHeap->capacity = capacity;
+    minHeap->size = 0;
+    minHeap->arr = (int*)malloc(capacity * sizeof(int));
+    return minHeap;
+}
+
+// Function to insert into max heap
+void insertMaxHeap(struct MaxHeap* maxHeap, int val) {
+    if (maxHeap->size == maxHeap->capacity) {
+        printf("Max Heap is full. Cannot insert more elements.\n");
+        return;
+    }
+
+    int i = maxHeap->size;
+    maxHeap->arr[i] = val;
+    maxHeap->size++;
+
+    // Heapify up
+    while (i != 0 && maxHeap->arr[(i - 1) / 2] < maxHeap->arr[i]) {
+        int temp = maxHeap->arr[i];
+        maxHeap->arr[i] = maxHeap->arr[(i - 1) / 2];
+        maxHeap->arr[(i - 1) / 2] = temp;
+        i = (i - 1) / 2;
+    }
+}
+
+// Function to insert into min heap
+void insertMinHeap(struct MinHeap* minHeap, int val) {
+    if (minHeap->size == minHeap->capacity) {
+        printf("Min Heap is full. Cannot insert more elements.\n");
+        return;
+    }
+
+    int i = minHeap->size;
+    minHeap->arr[i] = val;
+    minHeap->size++;
+
+    // Heapify up
+    while (i != 0 && minHeap->arr[(i - 1) / 2] > minHeap->arr[i]) {
+        int temp = minHeap->arr[i];
+        minHeap->arr[i] = minHeap->arr[(i - 1) / 2];
+        minHeap->arr[(i - 1) / 2] = temp;
+        i = (i - 1) / 2;
+    }
+}
+
+// Function to get maximum from max heap
+int getMax(struct MaxHeap* maxHeap) {
+    return maxHeap->arr[0];
+}
+
+// Function to get minimum from min heap
+int getMin(struct MinHeap* minHeap) {
+    return minHeap->arr[0];
+}
+
+int main() {
+    int numStudents;
+    printf("Enter the number of students: ");
+    scanf("%d", &numStudents);
+
+    // Creating max and min heaps
+    struct MaxHeap* maxHeap = createMaxHeap(numStudents);
+    struct MinHeap* minHeap = createMinHeap(numStudents);
+
+    printf("Enter the marks obtained by each student:\n");
+    int mark;
+    for (int i = 0; i < numStudents; ++i) {
+        printf("Enter marks for student %d: ", i + 1);
+        scanf("%d", &mark);
+        insertMaxHeap(maxHeap, mark);
+        insertMinHeap(minHeap, mark);
+    }
+
+    // Getting maximum and minimum marks
+    int maxMark = getMax(maxHeap);
+    int minMark = getMin(minHeap);
+
+    printf("Maximum mark obtained: %d\n", maxMark);
+    printf("Minimum mark obtained: %d\n", minMark);
+
+    // Free allocated memory
+    free(maxHeap->arr);
+    free(maxHeap);
+    free(minHeap->arr);
+    free(minHeap);
+
+    return 0;
+}

@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+struct Node {
+    char data;
+    struct Node* left;
+    struct Node* right;
+};
+
+struct Node* createNode(char data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+struct Node* constructExpressionTree(char prefix[], int* index) {
+    if (prefix[*index] == '\0') {
+        return NULL;
+    }
+
+    struct Node* newNode = createNode(prefix[*index]);
+    (*index)++;
+
+    if (isdigit(prefix[*index]) || isalpha(prefix[*index])) {
+        newNode->left = createNode(prefix[*index]);
+        (*index)++;
+    } else {
+        newNode->left = constructExpressionTree(prefix, index);
+    }
+
+    if (isdigit(prefix[*index]) || isalpha(prefix[*index])) {
+        newNode->right = createNode(prefix[*index]);
+        (*index)++;
+    } else {
+        newNode->right = constructExpressionTree(prefix, index);
+    }
+
+    return newNode;
+}
+
+void preorderTraversal(struct Node* root) {
+    if (root != NULL) {
+        printf("%c ", root->data);
+        preorderTraversal(root->left);
+        preorderTraversal(root->right);
+    }
+}
+
+void deleteTree(struct Node* root) {
+    if (root == NULL) {
+        return;
+    }
+    deleteTree(root->left);
+    deleteTree(root->right);
+    free(root);
+}
+
+int main() {
+    char prefix[100];
+    int choice;
+    struct Node* root = NULL;
+
+    printf("Enter the prefix expression: ");
+    scanf("%s", prefix);
+
+    int index = 0;
+    root = constructExpressionTree(prefix, &index);
+
+    do {
+        printf("\nMenu:\n");
+        printf("1. Traverse the tree in preorder\n");
+        printf("2. Delete the tree\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Preorder traversal: ");
+                preorderTraversal(root);
+                printf("\n");
+                break;
+            case 2:
+                deleteTree(root);
+                printf("Expression tree deleted.\n");
+                root = NULL;
+                break;
+            case 3:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Please enter a valid option.\n");
+        }
+    } while (choice != 3);
+
+    return 0;
+}

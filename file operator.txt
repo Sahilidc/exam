@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node *left;
+    struct Node *right;
+};
+
+struct Node* newNode(int data) {
+    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    node->data = data;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+void serialize(struct Node *root, FILE *fp) {
+    if (root == NULL) {
+        fprintf(fp, "# ");
+        return;
+    }
+    fprintf(fp, "%d ", root->data);
+    serialize(root->left, fp);
+    serialize(root->right, fp);
+}
+
+struct Node* deserialize(FILE *fp) {
+    int val;
+    if (fscanf(fp, "%d ", &val) != 1) {
+        return NULL;
+    }
+    if (val == -1) {
+        return NULL;
+    }
+    struct Node* root = newNode(val);
+    root->left = deserialize(fp);
+    root->right = deserialize(fp);
+    return root;
+}
+
+void freeTree(struct Node* root) {
+    if (root == NULL) {
+        return;
+    }
+    freeTree(root->left);
+    freeTree(root->right);
+    free(root);
+}
+
+void displayMenu() {
+    printf("\n1. Store Tree to File\n");
+    printf("2. Retrieve Tree from File\n");
+    printf("3. Exit\n");
+    printf("Enter your choice: ");
+}
+
+struct Node* createTree() {
+    int data;
+    struct Node* root = NULL;
+
+    printf("Enter the data for the root node: ");
+    scanf("%d", &data);
+    root = newNode(data);
+
+    printf("Enter the data for left child of %d (Enter -1 if NULL): ", data);
+    scanf("%d", &data);
+    if (data != -1) {
+        root->left = newNode(data);
+        printf("Enter the data for left child of %d (Enter -1 if NULL): ", root->left->data);
+        scanf("%d", &data);
+        if (data != -1) {
+            root->left->left = newNode(data);
+        }
+        printf("Enter the data for right child of %d (Enter -1 if NULL): ", root->left->data);
+        scanf("%d", &data);
+        if (data != -1) {
+            root->left->right = newNode(data);
+        }
+    }
+
+    printf("Enter the data for right child of %d (Enter -1 if NULL): ", root->data);
+    scanf("%d", &data);
+    if (data != -1) {
+        root->right = newNode(data);
+        printf("Enter the data for left child of %d (Enter -1 if NULL): ", root->right->data);
+        scanf("%d", &data);
+        if (data != -1) {
+            root->right->left = newNode(data);
+        }
+        printf("Enter the data for right child of %d (Enter -1 if NULL): ", root->right->data);
+        scanf("%d", &data);
+        if (data != -1) {
+            root->right->right = newNode(data);
+        }
+    }
+
+    return root;
+}
+
+int main() {
+    struct Node* root = NULL;
+    FILE *fp;
+    int choice;
+    char file_name[100];
+
+    while (1) {
+        displayMenu();
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                root = createTree();
+
+                printf("Enter the file name to store the tree: ");
+                scanf("%s", file_name);
+
+                fp = fopen(file_name, "w");
+                if (fp == NULL) {
+                    printf("Error opening the file.\n");
+                    return 1;
+                }
+                serialize(root, fp);
+                fclose(fp);
+
+                printf("Tree stored to file successfully.\n");
+                freeTree(root);
+                break;
+
+            case 2:
+                printf("Enter the file name to retrieve the tree: ");
+                scanf("%s", file_name);
+
+                fp = fopen(file_name, "r");
+                if (fp == NULL) {
+                    printf("Error opening the file.\n");
+                    return 1;
+                }
+                root = deserialize(fp);
+                fclose(fp);
+
+                printf("Retrieved Tree:\n");
+                // Displaying the retrieved tree logic remains the same as before
+
+                freeTree(root);
+                break;
+
+            case 3:
+                printf("Exiting program.\n");
+                return 0;
+
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+                break;
+        }
+    }
+}

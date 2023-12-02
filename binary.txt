@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Binary Tree Node Structure
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Function to create a new node
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert nodes into the binary tree
+void insertNode(struct Node** root) {
+    int data;
+    printf("Enter data for the node (-1 for NULL): ");
+    scanf("%d", &data);
+
+    if (data == -1) {
+        *root = NULL;
+        return;
+    }
+
+    struct Node* newNode = createNode(data);
+    *root = newNode;
+
+    printf("Enter left child of %d:\n", data);
+    insertNode(&((*root)->left));
+
+    printf("Enter right child of %d:\n", data);
+    insertNode(&((*root)->right));
+}
+
+// Recursive Preorder Traversal
+void recursivePreorder(struct Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->data);
+        recursivePreorder(root->left);
+        recursivePreorder(root->right);
+    }
+}
+
+// Non-recursive Preorder Traversal using a stack
+void nonRecursivePreorder(struct Node* root) {
+    if (root == NULL) return;
+
+    struct Node* stack[100]; // Assuming the maximum number of nodes
+    int top = -1;
+    stack[++top] = root;
+
+    while (top >= 0) {
+        struct Node* current = stack[top--];
+        printf("%d ", current->data);
+
+        if (current->right != NULL)
+            stack[++top] = current->right;
+        if (current->left != NULL)
+            stack[++top] = current->left;
+    }
+}
+
+// Function to display menu
+void displayMenu() {
+    printf("\nBinary Tree Menu:\n");
+    printf("1. Insert Node\n");
+    printf("2. Recursive Preorder Traversal\n");
+    printf("3. Non-Recursive Preorder Traversal\n");
+    printf("4. Exit\n");
+    printf("Enter your choice: ");
+}
+
+int main() {
+    struct Node* root = NULL;
+    int choice;
+
+    do {
+        displayMenu();
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Creating Binary Tree:\n");
+                insertNode(&root);
+                break;
+            case 2:
+                printf("Recursive Preorder Traversal: ");
+                recursivePreorder(root);
+                printf("\n");
+                break;
+            case 3:
+                printf("Non-Recursive Preorder Traversal: ");
+                nonRecursivePreorder(root);
+                printf("\n");
+                break;
+            case 4:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
+}
